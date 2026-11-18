@@ -4,7 +4,7 @@ A PySpark pipeline analyzing departures from Atlanta (ATL), Chicago O'Hare (ORD)
 
 ## Dataset and processing
 
-The input is the [ASA airline on-time dataset](https://stat-computing.org/dataexpo/2009/), available in Databricks at `/databricks-datasets/asa/airlines/{1999,200*}.csv`. Each row represents a scheduled flight. The [TA lab](https://androidilicious.github.io/databricks-pyspark-session/assignment.html) documents this source. The pipeline loads 1999–2008, selects six columns, casts numeric fields, and writes a Parquet snapshot partitioned by year. Source bytes and total source rows were not measured in the exported run. Source size still needs to be recorded to verify the assignment's 1GB+ requirement.
+The input is the [ASA airline on-time dataset](https://stat-computing.org/dataexpo/2009/), available in Databricks at `/databricks-datasets/asa/airlines/{1999,200*}.csv`. Each row represents a scheduled flight. The [TA lab](https://androidilicious.github.io/databricks-pyspark-session/assignment.html) documents this source. The pipeline loads 1999–2008, selects six columns, casts numeric fields, and writes a Parquet snapshot partitioned by year. A subsequent file-listing validation measured **10 source CSV files totaling 6,286,007,363 bytes (6.286 GB / 5.854 GiB)**, meeting the 1GB+ requirement. The source-size screenshot preserves that subsequent execution. Total source rows were not counted.
 
 Two early filters select 2005–2008 and the three airports. Two `withColumn` transformations identify noncancelled flights with recorded departure delay and delays of at least 15 minutes. A complex aggregation groups by year, month, and airport, computing scheduled flights, cancellations, observed departures, delay minutes, and delayed departures. This produces **144 airport-month rows covering 4,295,088 scheduled flights**. Assertions verify the number of groups and reconcile the saved flight total to the filtered input.
 
@@ -59,4 +59,6 @@ The snapshot is written to `/Volumes/workspace/default/week13_flight_analysis/fl
 - [Query execution list](screenshots/07-query-executions.png)
 - [Query Details for the aggregation write](screenshots/08-query-details.png)
 
-The actual source CSV byte size still needs to be captured to verify the 1GB+ input requirement. The 47.92 MB in Query Details measures this filtered Parquet query and cannot establish the source CSV size.
+- [Source size validation](screenshots/09-source-size.png)
+
+The HTML export preserves the original nine-cell run. The source script additionally includes the subsequently executed size check, whose output is preserved in the source-size screenshot.

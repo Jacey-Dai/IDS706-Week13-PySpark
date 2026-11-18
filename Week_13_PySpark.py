@@ -111,3 +111,23 @@ worst_months = spark.sql("""
     ORDER BY origin
 """)
 worst_months.show(truncate=False)
+
+
+# COMMAND ----------
+
+# Verify the size of the source files used by this pipeline.
+files = [
+    item
+    for item in dbutils.fs.ls("/databricks-datasets/asa/airlines/")
+    if item.name.endswith(".csv")
+    and (item.name == "1999.csv" or item.name.startswith("200"))
+]
+total_bytes = sum(item.size for item in files)
+for item in sorted(files, key=lambda item: item.name):
+    print(f"{item.name}: {item.size:,} bytes")
+print(f"Files: {len(files)}")
+print(f"Total: {total_bytes:,} bytes")
+print(f"Total: {total_bytes / 1_000_000_000:.3f} GB")
+print(f"Total: {total_bytes / 1024**3:.3f} GiB")
+assert total_bytes >= 1_000_000_000, "Input is smaller than 1 GB"
+print("Verified: source input meets the 1 GB requirement.")
