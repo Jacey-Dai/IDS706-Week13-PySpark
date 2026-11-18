@@ -34,7 +34,7 @@ The exported physical plan confirms year partition pruning through `PartitionFil
 
 The aggregation plan contains a partial `PhotonGroupingAgg`, a shuffle using `hashpartitioning(year, month, origin, 108)`, and a final aggregation. Local partial aggregation combines records before the exchange, reducing the records that need to move between workers. The plan reports full Photon support and an `AdaptiveSparkPlan` with `isFinalPlan=false`, so it records the initial plan. The shuffle is a potential cost, but its actual byte volume, spill, and task skew require Query Details evidence. The persisted 144-row monthly summary lets both SQL queries operate on a small result without rescanning millions of flight records.
 
-The measured metadata-read and transformation-construction time was **0.048 seconds**, the count action took **3.630 seconds**, and the aggregation write plus read-back validation took **2.762 seconds**. The staging cell's screenshot shows **49 seconds** for the whole cell. These scopes differ and the measurements come from one run. They demonstrate lazy construction followed by triggered execution, without establishing a comparative optimization speedup. The source CSV staging was the longest visible cell. Query Details screenshots remain to be added for scan and shuffle measurements. No explicit cache benchmark was performed.
+The measured metadata-read and transformation-construction time was **0.048 seconds**, the count action took **3.630 seconds**, and the aggregation write plus read-back validation took **2.762 seconds**. The staging cell's screenshot shows **49 seconds** for the whole cell. These scopes differ and the measurements come from one run. They demonstrate lazy construction followed by triggered execution, without establishing a comparative optimization speedup. The source CSV staging was the longest visible cell. The Query Details screenshot records a 1.584-second wall-clock duration for the aggregation write, 47.92 MB read across four files, 4,295,088 rows read, and 144 rows written (5.74 KB). Aggregated task time was 1.32 seconds. The execution list shows five of five tasks completed. Shuffle byte volume is not visible in the supplied details. No explicit cache benchmark was performed.
 
 ## Reproduce
 
@@ -56,4 +56,7 @@ The snapshot is written to `/Volumes/workspace/default/week13_flight_analysis/fl
 - [Airport summary](screenshots/05-airport-summary.png)
 - [Highest-cancellation months](screenshots/06-worst-months.png)
 
-Two submission items remain to be captured in Databricks: actual input byte size and the Query Details view showing optimization.
+- [Query execution list](screenshots/07-query-executions.png)
+- [Query Details for the aggregation write](screenshots/08-query-details.png)
+
+The actual source CSV byte size still needs to be captured to verify the 1GB+ input requirement. The 47.92 MB in Query Details measures this filtered Parquet query and cannot establish the source CSV size.
