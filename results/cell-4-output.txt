@@ -1,0 +1,2 @@
+Read metadata and build transformations: 0.048 s
+Count action: 4,295,088 scheduled departures in 3.630 s

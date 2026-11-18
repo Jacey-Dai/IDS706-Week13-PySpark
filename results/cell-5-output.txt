@@ -1,0 +1,67 @@
+== Physical Plan ==
+AdaptiveSparkPlan (11)
++- == Initial Plan ==
+   PhotonResultStage (10)
+   +- PhotonColumnarToRow (9)
+      +- PhotonGroupingAgg (8)
+         +- PhotonShuffleExchangeSource (7)
+            +- PhotonShuffleMapStage (6)
+               +- PhotonShuffleExchangeSink (5)
+                  +- PhotonGroupingAgg (4)
+                     +- PhotonProject (3)
+                        +- PhotonProject (2)
+                           +- PhotonScan parquet  (1)
+
+
+(1) PhotonScan parquet 
+Output [5]: [month#10229, origin#10230, cancelled#10232, dep_delay#10233, year#10234]
+DictionaryFilters: [origin#10230 IN (ATL,ORD,DFW)]
+Location: InMemoryFileIndex [dbfs:/Volumes/workspace/default/week13_flight_analysis/flights]
+PartitionFilters: [isnotnull(year#10234), (year#10234 >= 2005), (year#10234 <= 2008)]
+ReadSchema: struct<month:int,origin:string,cancelled:int,dep_delay:int>
+RequiredDataFilters: [origin#10230 IN (ATL,ORD,DFW)]
+
+(2) PhotonProject
+Input [5]: [month#10229, origin#10230, cancelled#10232, dep_delay#10233, year#10234]
+Arguments: [month#10229, origin#10230, cancelled#10232, year#10234, CASE WHEN (cancelled#10232 = 0) THEN dep_delay#10233 END AS observed_delay#10252]
+
+(3) PhotonProject
+Input [5]: [month#10229, origin#10230, cancelled#10232, year#10234, observed_delay#10252]
+Arguments: [month#10229, origin#10230, cancelled#10232, year#10234, observed_delay#10252, cast((observed_delay#10252 >= 15) as int) AS delayed_15#10254]
+
+(4) PhotonGroupingAgg
+Input [6]: [month#10229, origin#10230, cancelled#10232, year#10234, observed_delay#10252, delayed_15#10254]
+Arguments: [year#10234, month#10229, origin#10230], [partial_count(1) AS count#10267L, partial_sum(cancelled#10232) AS sum#10269L, partial_count(observed_delay#10252) AS count#10271L, partial_sum(observed_delay#10252) AS sum#10273L, partial_sum(delayed_15#10254) AS sum#10275L], [count#10266L, sum#10268L, count#10270L, sum#10272L, sum#10274L], [year#10234, month#10229, origin#10230, count#10267L, sum#10269L, count#10271L, sum#10273L, sum#10275L], false
+
+(5) PhotonShuffleExchangeSink
+Input [8]: [year#10234, month#10229, origin#10230, count#10267L, sum#10269L, count#10271L, sum#10273L, sum#10275L]
+Arguments: hashpartitioning(year#10234, month#10229, origin#10230, 108)
+
+(6) PhotonShuffleMapStage
+Input [8]: [year#10234, month#10229, origin#10230, count#10267L, sum#10269L, count#10271L, sum#10273L, sum#10275L]
+Arguments: ENSURE_REQUIREMENTS, [id=#7025]
+
+(7) PhotonShuffleExchangeSource
+Input [8]: [year#10234, month#10229, origin#10230, count#10267L, sum#10269L, count#10271L, sum#10273L, sum#10275L]
+Arguments: false
+
+(8) PhotonGroupingAgg
+Input [8]: [year#10234, month#10229, origin#10230, count#10267L, sum#10269L, count#10271L, sum#10273L, sum#10275L]
+Arguments: [year#10234, month#10229, origin#10230], [finalmerge_count(merge count#10267L) AS count(1)#10261L, finalmerge_sum(merge sum#10269L) AS sum(cancelled)#10262L, finalmerge_count(merge count#10271L) AS count(observed_delay)#10263L, finalmerge_sum(merge sum#10273L) AS sum(observed_delay)#10264L, finalmerge_sum(merge sum#10275L) AS sum(delayed_15)#10265L], [count(1)#10261L, sum(cancelled)#10262L, count(observed_delay)#10263L, sum(observed_delay)#10264L, sum(delayed_15)#10265L], [year#10234, month#10229, origin#10230, count(1)#10261L AS scheduled#10256L, sum(cancelled)#10262L AS cancellations#10257L, count(observed_delay)#10263L AS observed_departures#10258L, sum(observed_delay)#10264L AS delay_minutes#10259L, sum(delayed_15)#10265L AS delayed_departures#10260L], true
+
+(9) PhotonColumnarToRow
+Input [8]: [year#10234, month#10229, origin#10230, scheduled#10256L, cancellations#10257L, observed_departures#10258L, delay_minutes#10259L, delayed_departures#10260L]
+
+(10) PhotonResultStage
+Input [8]: [year#10234, month#10229, origin#10230, scheduled#10256L, cancellations#10257L, observed_departures#10258L, delay_minutes#10259L, delayed_departures#10260L]
+
+(11) AdaptiveSparkPlan
+Output [8]: [year#10234, month#10229, origin#10230, scheduled#10256L, cancellations#10257L, observed_departures#10258L, delay_minutes#10259L, delayed_departures#10260L]
+Arguments: isFinalPlan=false
+
+
+== Photon Explanation ==
+The query is fully supported by Photon.
+Wrote and verified 144 airport-months covering 4,295,088 flights.
+Write and validation: 2.762 s
+/Volumes/workspace/default/week13_flight_analysis/airport_monthly
