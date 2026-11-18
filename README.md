@@ -61,4 +61,4 @@ The snapshot is written to `/Volumes/workspace/default/week13_flight_analysis/fl
 
 - [Source size validation](screenshots/09-source-size.png)
 
-The updated HTML export includes the pipeline results and the successful source-size check. The Python source contains the same size-validation logic.
+The HTML export includes the pipeline results and the successful source-size check. The Python source contains the same size-validation logic.
