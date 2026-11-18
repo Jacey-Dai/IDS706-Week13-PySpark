@@ -1,10 +1,10 @@
 # Flight delays at major US airports
 
-A PySpark pipeline analyzing departures from Atlanta (ATL), Chicago O'Hare (ORD), and Dallas/Fort Worth (DFW) during 2005–2008. The notebook was successfully executed in Databricks Free Edition on November 18, 2026. All nine exported cells finished without errors.
+A PySpark pipeline analyzing departures from Atlanta (ATL), Chicago O'Hare (ORD), and Dallas/Fort Worth (DFW) during 2005–2008. The notebook was successfully executed in Databricks Free Edition on November 18, 2026. All 10 exported cells finished without errors, including the source-size validation.
 
 ## Dataset and processing
 
-The input is the [ASA airline on-time dataset](https://stat-computing.org/dataexpo/2009/), available in Databricks at `/databricks-datasets/asa/airlines/{1999,200*}.csv`. Each row represents a scheduled flight. The [TA lab](https://androidilicious.github.io/databricks-pyspark-session/assignment.html) documents this source. The pipeline loads 1999–2008, selects six columns, casts numeric fields, and writes a Parquet snapshot partitioned by year. A subsequent file-listing validation measured **10 source CSV files totaling 6,286,007,363 bytes (6.286 GB / 5.854 GiB)**, meeting the 1GB+ requirement. The source-size screenshot preserves that subsequent execution. Total source rows were not counted.
+The input is the [ASA airline on-time dataset](https://stat-computing.org/dataexpo/2009/), available in Databricks at `/databricks-datasets/asa/airlines/{1999,200*}.csv`. Each row represents a scheduled flight. The [TA lab](https://androidilicious.github.io/databricks-pyspark-session/assignment.html) documents this source. The pipeline loads 1999–2008, selects six columns, casts numeric fields, and writes a Parquet snapshot partitioned by year. A subsequent file-listing validation measured **10 source CSV files totaling 6,286,007,363 bytes (6.286 GB / 5.854 GiB)**, meeting the 1GB+ requirement. The updated HTML and source-size screenshot preserve that execution. Total source rows were not counted.
 
 Two early filters select 2005–2008 and the three airports. Two `withColumn` transformations identify noncancelled flights with recorded departure delay and delays of at least 15 minutes. A complex aggregation groups by year, month, and airport, computing scheduled flights, cancellations, observed departures, delay minutes, and delayed departures. This produces **144 airport-month rows covering 4,295,088 scheduled flights**. Assertions verify the number of groups and reconcile the saved flight total to the filtered input.
 
@@ -61,4 +61,4 @@ The snapshot is written to `/Volumes/workspace/default/week13_flight_analysis/fl
 
 - [Source size validation](screenshots/09-source-size.png)
 
-The HTML export preserves the original nine-cell run. The source script additionally includes the subsequently executed size check, whose output is preserved in the source-size screenshot.
+The updated HTML export includes the pipeline results and the successful source-size check. The Python source contains the same size-validation logic.
